@@ -2,7 +2,6 @@ package com.example.Spring_back.User.model;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.java.Log;
 
 public class UserDto {
 
