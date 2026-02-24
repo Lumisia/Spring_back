@@ -16,7 +16,7 @@ public class UserDto {
                     .email(this.email)
                     .user_id(this.user_id)
                     .password(this.password)
-                    .role("USER")
+                    .role("ROLE_USER")
                     .build();
         }
     }
