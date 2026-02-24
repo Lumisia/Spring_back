@@ -33,8 +33,14 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	//DB
+	// DB
 	implementation 'org.mariadb.jdbc:mariadb-java-client:3.5.3'
+
+	// Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// Mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {
