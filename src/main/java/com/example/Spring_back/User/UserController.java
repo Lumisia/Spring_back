@@ -31,4 +31,16 @@ public class UserController {
 
         return ResponseEntity.ok("성공");
     }
+
+    @GetMapping("/check-enable")
+    public ResponseEntity email(String email) {
+
+        boolean check = userService.email(email);
+
+        if(check) {
+            return ResponseEntity.ok("성공");
+        }else {
+            return ResponseEntity.ok("실패");
+        }
+    }
 }

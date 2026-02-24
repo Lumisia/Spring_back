@@ -74,4 +74,10 @@ public class UserService implements UserDetailsService {
         user.setEnable(true);
         ur.save(user);
     }
+
+    public boolean email(String email) {
+        User user = ur.findByEmail(email).orElseThrow();
+
+        return user.isEnable();
+    }
 }
