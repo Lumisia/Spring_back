@@ -13,11 +13,12 @@ public class JwtUtil {
     static SecretKey encodedKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
 
     public static String createToken(Long idx, String email, String role) {
+        System.out.println(email);
         String jwt = Jwts.builder()
                 .claim("idx", idx)
                 .claim("email", email)
                 .claim("role", role)
-                .issuedAt(new Date()).expiration(new Date(System.currentTimeMillis() + 300000)).signWith(encodedKey).compact();
+                .issuedAt(new Date()).expiration(new Date(System.currentTimeMillis() + 300000000)).signWith(encodedKey).compact();
 
         return jwt;
     }
@@ -32,7 +33,7 @@ public class JwtUtil {
         return claims.get("idx", Long.class);
     }
 
-    public static String getUsername(String token) {
+    public static String getEmail(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(encodedKey)
                 .build()

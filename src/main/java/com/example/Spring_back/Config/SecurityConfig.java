@@ -17,10 +17,38 @@ import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableWebSecurity // Security 설정을 활성화
 public class SecurityConfig {
     private final AuthenticationConfiguration configuration;
     private final LoginFilter loginFilter;
     private final JwtFilter jwtFilter;
+
+    @Bean
+    public SecurityFilterChain config(HttpSecurity http) throws Exception {
+        // 1. CORS 설정 적용 (이게 빠져있었습니다!)
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
+        // 2. CSRF, FormLogin 등 비활성화
+        http.csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable);
+
+        // 3. 인가(Authorization) 설정
+        http.authorizeHttpRequests(auth -> auth
+                // 로그인, 회원가입 등은 누구나 접근 가능
+                .requestMatchers("/user/**","/board/list", "/login", "/api/login", "/error").permitAll()
+                // 나머지 요청(특히 /board/save 등)은 반드시 인증 필요
+                .anyRequest().authenticated()
+        );
+
+        // 4. 필터 순서 설정
+        // jwtFilter가 먼저 실행되어 쿠키를 확인하고 인증 객체를 만들어야 합니다.
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        // 그 다음 로그인 필터(ID/PW 검증)가 위치합니다.
+        http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -29,35 +57,10 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("Set-Cookie", "ATOKEN"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 적용
+        source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-
-    @Bean // 개발자가 직접 개발한 코드가 아닌 클래스의 객체를 스프링의 빈으로 등록하려고 할 때 사용
-    public SecurityFilterChain config(HttpSecurity http) throws Exception {
-        // 특정 URI로 접속했을 때 권한 설정하는 부분
-        // .permitAll() 전부 허용
-        // .hasRole("ADMIN") AuthUserDetails 객체에서 ROLE_ADMIN 권한을 가진 사용자만 허용
-        // .authenticated() 는 로그인 한 사용자만 허용
-        http.authorizeHttpRequests(
-                (auth) -> auth
-                        .requestMatchers("/user/**", "/error").permitAll()
-                        .anyRequest().authenticated()
-        );
-
-        // CSRF 방어 기능을 중지하는 코드
-        http.csrf(AbstractHttpConfigurer::disable);
-        // basic 로그인 방식 사용 안하도록 설정
-        http.httpBasic(AbstractHttpConfigurer::disable);
-        // form 로그인 방식 사용 안하도록 설정
-        http.formLogin(AbstractHttpConfigurer::disable);
-
-        // 기존 필터 대신에 내가 구현한 필터로 교체
-        http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
     }
 }

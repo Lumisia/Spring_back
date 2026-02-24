@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 public class AuthUserDetails implements UserDetails {
     private Long idx;
+    private String email;
     private String user_id;
     private String password;
     private boolean enable;
@@ -22,6 +23,7 @@ public class AuthUserDetails implements UserDetails {
         return AuthUserDetails.builder()
                 .idx(entity.getIdx())
                 .user_id(entity.getUser_id())
+                .email(entity.getEmail())
                 .password(entity.getPassword())
                 .enable(entity.isEnable())
                 .role(entity.getRole())
@@ -61,4 +63,5 @@ public class AuthUserDetails implements UserDetails {
     public String getUsername() {
         return user_id;
     }
+
 }

@@ -30,7 +30,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         System.out.println("로그인 성공했을 때 실행");
         AuthUserDetails user = (AuthUserDetails) authResult.getPrincipal();
-        String token = JwtUtil.createToken(user.getIdx(), user.getUser_id(), user.getRole());
+        String token = JwtUtil.createToken(user.getIdx(), user.getEmail(), user.getRole());
         response.setHeader("Set-Cookie", "ATOKEN=" + token + "; Path=/");
     }
 

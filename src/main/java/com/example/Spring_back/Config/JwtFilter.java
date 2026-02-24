@@ -23,30 +23,41 @@ public class JwtFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         System.out.println(path);
 
-        return path.startsWith("/user/login") ||
+        return path.startsWith("/login") ||
                 path.startsWith("/user/signup") ||
                 path.startsWith("/user/verify");
+
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                if (cookie.getName().equals("ATOKEN")) {
-                    // JwtUtil에서 토큰 생성 및 확인하도록 리팩토링
-                    String username = JwtUtil.getUsername(cookie.getValue());
-                    String role = JwtUtil.getRole(cookie.getValue());
+                if ("ATOKEN".equals(cookie.getName())) {
+                    String token = cookie.getValue();
 
-                    Authentication authentication = new UsernamePasswordAuthenticationToken(
-                            username,
-                            null,
-                            List.of(new SimpleGrantedAuthority(role))
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    // 🔥 토큰이 비어있지 않고 유효한지 검증하는 로직 추가 필요
+                    if (token != null && !token.isEmpty()) {
+                        try {
+                            String email = JwtUtil.getEmail(token);
+                            String role = JwtUtil.getRole(token);
+
+                            if (email != null && role != null) {
+                                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                                        email,
+                                        null,
+                                        List.of(new SimpleGrantedAuthority(role))
+                                );
+                                SecurityContextHolder.getContext().setAuthentication(authentication);
+                            }
+                        } catch (Exception e) {
+                            // 토큰 파싱 중 에러 발생 시 로그 출력 (만료 등)
+                            logger.error("JWT 검증 실패: " + e.getMessage());
+                        }
+                    }
                 }
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }
