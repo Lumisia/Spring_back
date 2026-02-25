@@ -10,16 +10,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(
-        origins = "http://localhost:5173",
-        allowCredentials = "true"
-)
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private static JwtUtil jwtUtil;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody UserDto.SignupReq dto) {
@@ -57,7 +54,7 @@ public class UserController {
         AuthUserDetails user = (AuthUserDetails) authentication.getPrincipal();
 
         if(user != null) {
-            String jwt = JwtUtil.createToken(user.getIdx(), user.getEmail(), user.getRole());
+            String jwt = jwtUtil.createToken(user.getIdx(), user.getEmail(), user.getRole());
             return ResponseEntity.ok().header("Set-Cookie", "ATOKEN=" + jwt + "; Path=/").build();
         }
 

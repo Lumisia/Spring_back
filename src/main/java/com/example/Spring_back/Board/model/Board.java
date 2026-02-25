@@ -1,10 +1,12 @@
 package com.example.Spring_back.Board.model;
 
+import com.example.Spring_back.Reply.model.Reply;
 import com.example.Spring_back.User.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,7 +26,8 @@ public class Board {
     private String content;
 
     // 조회수: 기본값 0 설정
-    @Builder.Default
+//    @Builder.Default
+    @Setter
     @Column(nullable = false)
     private int viewCount = 0;
 
@@ -33,11 +36,10 @@ public class Board {
     private LocalDateTime createdAt;
 
     // User 엔티티의 idx를 외래키로 참조 (N:1 관계)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_idx")
-    @JsonIgnore
     @Setter
-    private User writer;
+    private User user;
 
     // 데이터 저장 전 실행되는 메서드 (작성일 및 조회수 초기화 방어 로직)
     @PrePersist
@@ -50,4 +52,7 @@ public class Board {
     // 제목이나 내용 수정을 위한 Setter (필요한 경우만 사용)
     @Setter
     private String category;
+
+    @OneToMany(mappedBy = "board")
+    private List<Reply> reply_list;
 }

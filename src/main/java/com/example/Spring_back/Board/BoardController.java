@@ -31,7 +31,7 @@ public class BoardController {
         User writer = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        dto.setWriter(writer);
+        dto.setUser(writer);
         boardService.post(dto);
 
         System.out.println(writer.getUser_id());
@@ -39,18 +39,20 @@ public class BoardController {
         return ResponseEntity.ok("성공");
     }
     @GetMapping("/list")
-    public ResponseEntity<List<Board>> list_all() {
+    public ResponseEntity<List<BoardDto.PostRes>> list_all() {
         List<Board> list = boardService.list();
 
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(list.stream().map(BoardDto.PostRes::form).toList());
     }
 
     @GetMapping("/detail/{idx}")
-    public ResponseEntity<Board> board_detail(@PathVariable("idx") Long idx) {
+    public ResponseEntity<BoardDto.PostRes> board_detail(@PathVariable("idx") Long idx) {
         try {
             // 서비스 계층에서 idx로 게시글 조회
-            Board boardDto = boardService.getPostById(idx);
-            return ResponseEntity.ok(boardDto);
+            Board formDto = boardService.getPostById(idx);
+            formDto.setViewCount(formDto.getViewCount()+1);
+
+            return ResponseEntity.ok(BoardDto.PostRes.form(formDto));
         } catch (RuntimeException e) {
             return ResponseEntity.ok(null);
         }

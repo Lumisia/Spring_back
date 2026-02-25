@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,7 +18,9 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
+    private final JwtUtil jwtUtil;
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
@@ -39,8 +42,8 @@ public class JwtFilter extends OncePerRequestFilter {
                     // 🔥 토큰이 비어있지 않고 유효한지 검증하는 로직 추가 필요
                     if (token != null && !token.isEmpty()) {
                         try {
-                            String email = JwtUtil.getEmail(token);
-                            String role = JwtUtil.getRole(token);
+                            String email = jwtUtil.getEmail(token);
+                            String role = jwtUtil.getRole(token);
 
                             if (email != null && role != null) {
                                 Authentication authentication = new UsernamePasswordAuthenticationToken(

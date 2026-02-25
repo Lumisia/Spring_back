@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,17 +21,19 @@ import java.io.IOException;
 @Component
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    public LoginFilter(AuthenticationManager authenticationManager) {
+    public LoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         super(authenticationManager);
         this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         System.out.println("로그인 성공했을 때 실행");
         AuthUserDetails user = (AuthUserDetails) authResult.getPrincipal();
-        String token = JwtUtil.createToken(user.getIdx(), user.getEmail(), user.getRole());
+        String token = jwtUtil.createToken(user.getIdx(), user.getEmail(), user.getRole());
         response.setHeader("Set-Cookie", "ATOKEN=" + token + "; Path=/");
     }
 

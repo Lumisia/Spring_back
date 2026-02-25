@@ -1,0 +1,49 @@
+package com.example.Spring_back.Reply.model;
+
+import com.example.Spring_back.Board.model.Board;
+import com.example.Spring_back.Board.model.BoardDto;
+import com.example.Spring_back.User.model.User;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.time.LocalDateTime;
+
+public class ReplyDto {
+
+    @Getter
+    public static class ReplyReq {
+        private Long board_idx;
+        private User user;
+        private String content;
+
+        private Reply toEntity() {
+            return Reply.builder()
+                    .board(Board.builder()
+                            .idx(board_idx)
+                            .build()
+
+                    )
+                    .user(this.user)
+                    .content(this.content)
+                    .build();
+        }
+    }
+
+    @Builder
+    @Getter
+    public static class ReplyRes {
+        private Long board_idx;
+        private String username;
+        private String content;
+        private LocalDateTime createdAt;
+
+        public static ReplyRes form(Reply entity) {
+            return ReplyRes.builder()
+                    .board_idx(entity.getBoard().getIdx())
+                    .username(entity.getUser().getUser_id())
+                    .content(entity.getContent())
+                    .createdAt(entity.getCreatedAt())
+                    .build();
+        }
+    }
+}
