@@ -12,18 +12,17 @@ public class ReplyDto {
 
     @Getter
     public static class ReplyReq {
-        private Long board_idx;
-        private User user;
         private String content;
 
-        private Reply toEntity() {
+        public Reply toEntity(Long board_idx, Long user_idx) {
             return Reply.builder()
                     .board(Board.builder()
                             .idx(board_idx)
                             .build()
-
                     )
-                    .user(this.user)
+                    .user(User.builder()
+                            .idx(user_idx)
+                            .build())
                     .content(this.content)
                     .build();
         }

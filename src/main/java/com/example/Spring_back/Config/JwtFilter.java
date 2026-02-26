@@ -1,5 +1,6 @@
 package com.example.Spring_back.Config;
 
+import com.example.Spring_back.User.model.AuthUserDetails;
 import com.example.Spring_back.Utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -42,12 +43,19 @@ public class JwtFilter extends OncePerRequestFilter {
                     // 🔥 토큰이 비어있지 않고 유효한지 검증하는 로직 추가 필요
                     if (token != null && !token.isEmpty()) {
                         try {
+                            Long idx = jwtUtil.getUserIdx(token);
                             String email = jwtUtil.getEmail(token);
                             String role = jwtUtil.getRole(token);
 
-                            if (email != null && role != null) {
+                            AuthUserDetails user =AuthUserDetails.builder()
+                                    .idx(idx)
+                                    .email(email)
+                                    .role(role)
+                                    .build();
+
+                            if (user != null && role != null) {
                                 Authentication authentication = new UsernamePasswordAuthenticationToken(
-                                        email,
+                                        user,
                                         null,
                                         List.of(new SimpleGrantedAuthority(role))
                                 );

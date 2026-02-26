@@ -2,19 +2,28 @@ package com.example.Spring_back.Reply;
 
 import com.example.Spring_back.Reply.model.Reply;
 import com.example.Spring_back.Reply.model.ReplyDto;
+import com.example.Spring_back.User.model.AuthUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/reply")
+@RequestMapping("/board")
 @RequiredArgsConstructor
 @RestController
 public class ReplyController {
-//    private final ReplyService replyService;
+    private final ReplyService replyService;
 
-    @RequestMapping("/post")
-    private static void post(ReplyDto.ReplyReq dto) {
+    @RequestMapping("/reply/{board_idx}")
+    private ResponseEntity post(
+            @AuthenticationPrincipal AuthUserDetails user,
+            @PathVariable Long board_idx,
+            @RequestBody ReplyDto.ReplyReq dto) {
+
+        ReplyDto.ReplyRes result = replyService.save(board_idx, user.getIdx(), dto);
+
+        return ResponseEntity.ok(
+                result
+        );
     }
-
 }

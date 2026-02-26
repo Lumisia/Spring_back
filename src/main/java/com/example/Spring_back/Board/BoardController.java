@@ -4,10 +4,12 @@ package com.example.Spring_back.Board;
 import com.example.Spring_back.Board.model.Board;
 import com.example.Spring_back.Board.model.BoardDto;
 import com.example.Spring_back.User.UserRepository;
+import com.example.Spring_back.User.model.AuthUserDetails;
 import com.example.Spring_back.User.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,12 +22,14 @@ public class BoardController {
     private final UserRepository userRepository;
 
     @PostMapping("/save")
-    public ResponseEntity posting(@RequestBody BoardDto.PostReq dto, Authentication authentication) {
+    public ResponseEntity posting(
+            @AuthenticationPrincipal AuthUserDetails user,
+            @RequestBody BoardDto.PostReq dto) {
 
-        String email = authentication.getName();
+        String email = user.getEmail();
         System.out.println(email);
 
-        System.out.println("현재 로그인한 유저: " + authentication.getName()); // 콘솔에 찍히는 값 확인
+        System.out.println("현재 로그인한 유저: " + user.getEmail()); // 콘솔에 찍히는 값 확인
 
         // 2. DB에서 실제 유저 엔티티 조회
         User writer = userRepository.findByEmail(email)
